@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/04 14:28:58 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/04 17:30:53 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/06 09:08:49 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,7 @@ def parse_prog(sections):
 def proc_max(prog_list, config):
     count = 0
     for prog in prog_list:
+        print(prog)
         try:
             count += int(config.get(prog, "numprocs"))
             if (count > 200):
