@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/05 18:09:09 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/09 08:57:45 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/13 21:28:12 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,15 +14,18 @@ import os
 import sys
 import configparser
 
+from taskmaster.launcher import *
 from taskmaster.task_error import *
 from taskmaster.job import *
 
 class Process:
-    def __init__(self, job):
+    def __init__(self, job, launcher):
         self.target_fds = list()
+        self.pid = "Not started"
         self.fds = list()
+        self.status = "STOPPED"
 
-    def exec(self, job):
+    def exec(self, job, launcher):
         read_in, write_in = os.pipe()
         read_out, write_out = os.pipe()
         read_err, write_err = os.pipe()
@@ -37,6 +40,7 @@ class Process:
             os.close(write_in)
             os.close(read_out)
             os.close(read_err)
+            job.conf_apply()
             try:
                 os.execve(job.command[0], job.command, os.environ)
             except:

@@ -6,16 +6,18 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/01 15:17:25 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/10 16:50:38 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/15 16:36:18 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 import sys
 import os
+import logging
 
 from taskmaster.task_error import *
 from taskmaster.server import *
 from taskmaster.job import *
+from taskmaster.daemon import Daemon
 
 #def main();
 
@@ -26,17 +28,11 @@ if __name__ == '__main__':
         config_file = os.path.abspath(sys.argv[1])
     except FileNotFoundError:
         task_error("Config file not found")
-    print(config_file)
+ #   daemon = Daemon('/tmp/.taskmaster_pid')
+  #  daemon.start()
+    logging.basicConfig(format='%(asctime)s , %(levelname)s : %(message)s', \
+        filename='/tmp/.taskmasterdlog', level=logging.INFO)
     server = Server(config_file);
     server.launch_job(server.cfg, server.job)
-    try:
-        while True:
-            thread = 0
-            server.c, server.addr = server.ss.accept()
-            server.c.recv(1024)
-            server.c.send(str(num_threads).encode('utf-7'))
-            server.c.auth(thread)
-            thread += 1
-        server.ss.close()
-    except InterruptedError:
-        task_error("Interrupted syscall")
+    server.launch_server()
+

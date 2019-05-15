@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/05 16:21:07 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/08 17:58:46 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/15 17:22:57 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,6 @@ from taskmaster.task_error import *
 
 class Job:
     def __init__(self, cfg, name):
-        print(name)
         try:
             self.command = cfg.get(name, "command")
         except configparser.NoOptionError:

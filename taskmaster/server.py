@@ -1,26 +1,34 @@
-# **************************************************************************** # #                                                                              #
-#                                                         :::      ::::::::    #
-#    server.py                                          :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2019/05/03 14:03:51 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/08 12:07:16 by dbaffier         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+#!/usr/bin/env python3
 
 import sys
 import os
 import configparser
 import socket
 import signal
+import threading
 
+from threading import Thread
 from taskmaster.task_error import *
 from taskmaster.parse_prog import *
 from taskmaster.drop_privilege import *
+from taskmaster.launcher import launcher
 from taskmaster.job import *
 from taskmaster.process import *
-from taskmaster.launcher import *
+from taskmaster.auth import *
+
+class ThreadWithReturnValue(Thread):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, *, daemon=None):
+        Thread.__init__(self, group, target, name, args, kwargs, daemon=daemon)
+
+        self._return = None
+
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args, **self._kwargs)
+
+    def join(self):
+        Thread.join(self)
+        return self._return
 
 class Server:
     def __init__(self, path):
@@ -52,10 +60,27 @@ class Server:
         except:
             task_error("Socket already used")
         self.ss.listen(5)
-        self.queue = list()
-        signal.signal(signal.SIGCHLD, end_chld)
+ #       signal.signal(signal.SIGCHLD, end_chld)
     def launch_job(self, cfg, section):
-        launcher(cfg, section)
-    def launch_auth(client, addr, server, server):
-        thread = threading.Thread(target=auth, args=(self.c, self.addr, self))
+        self.launch = ThreadWithReturnValue(target=launcher, args=(cfg, section))
+        self.launch.start()
+ #       t = threading.Thread(target=launcher, args=(cfg, section))
+  #      t.start()
+     #   launcher(cfg, section)
+    def launch_auth(self, thread):
+        thread = threading.Thread(target=auth, args=(self.c, self.addr, self,
+                                                     thread))
         thread.start()
+    def launch_server(self):
+        try:
+            while True:
+                thread = 0
+                self.c, self.addr = self.ss.accept()
+                self.c.recv(1024)
+                self.c.send(str(thread).encode('utf-7'))
+                self.launch_auth(thread)
+                thread += 1
+            self.ss.close()
+        except InterruptedError:
+            task_error("Interrupted syscall")
+
