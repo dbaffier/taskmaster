@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/06 09:29:22 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/15 17:23:19 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/21 15:03:43 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,26 +33,28 @@ class Launcher:
         self.process = dict()
         self.queue = dict()
         self.lst_pid = list()
+        self.queue_pid = list()
  #       io_transfer(job, proc)
-
 
     def launch_loop(self, launcher, job, ok, name):
         n = 0
-        proc = Process(job, launcher)
         if ok == "true" and job.command:
             while n < job.numprocs:
+                proc = Process(job, launcher, job.startretries)
                 if job.numprocs > 1:
                     process_cmd = name[8:] + "_" + str(n)
                 else:
                     process_cmd = name[8:]
                 logging.info("start %s", process_cmd)
                 proc.exec(job, launcher)
+                proc.name = process_cmd
                 launcher.queue[proc.pid] = process_cmd
                 launcher.process[process_cmd] = proc
                 launcher.lst_pid.append(proc.pid)
                 n += 1
         elif ok == "false" and job.command:
             while n < job.numprocs:
+                proc = Process(job, launcher, job.startretries)
                 if job.numprocs > 1:
                     process_cmd = name[8:] + "_" + str(n)
                 else:

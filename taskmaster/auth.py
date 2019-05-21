@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/06 13:35:13 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/15 17:22:42 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/16 09:32:22 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ def print_delay_fast(c):
 def wait_as(sock):
     while True:
         try:
-            reply = sock.recv(1024).decode('utf-8')
+            reply = sock.recv(2048).decode('utf-8')
         except ConnectionResetError:
             raise ConnectionResetError
         if len(reply) > 0 and reply != '\r':

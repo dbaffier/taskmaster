@@ -1,20 +1,41 @@
-#!/usr/bin/env python3
-
+#!/usr/bin/env python3 
 import sys
 import os
 import configparser
 import socket
 import signal
 import threading
+import time
 
 from threading import Thread
+from taskmaster.guard import *
 from taskmaster.task_error import *
 from taskmaster.parse_prog import *
 from taskmaster.drop_privilege import *
 from taskmaster.launcher import launcher
+from taskmaster.clean_up import extract_job
 from taskmaster.job import *
 from taskmaster.process import *
 from taskmaster.auth import *
+from taskmaster.kill import kill
+
+def proc_st(self, proc):
+    data = self.launch.join()
+    while proc.status != "EXITED" and proc.status != "STOPPED" \
+            and proc.status != "FATAL" and proc.status != "UNKNOWN":
+        time.sleep(1)
+    name = data.queue[proc.pid]
+    proc.exec(proc.parent, None)
+    data.queue[proc.pid] = name
+    data.process[name] = proc
+    data.lst_pid.append(proc.pid)
+
+def proc_launch(data, proc, name):
+    proc.exec(proc.parent, None)
+    data.queue[proc.pid] = name
+    data.process[name] = proc
+    data.lst_pid.append(proc.pid)
+
 
 class ThreadWithReturnValue(Thread):
     def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, *, daemon=None):
@@ -60,17 +81,32 @@ class Server:
         except:
             task_error("Socket already used")
         self.ss.listen(5)
- #       signal.signal(signal.SIGCHLD, end_chld)
+        self.lst_job = extract_job(self.cfg.sections())
+
     def launch_job(self, cfg, section):
         self.launch = ThreadWithReturnValue(target=launcher, args=(cfg, section))
         self.launch.start()
- #       t = threading.Thread(target=launcher, args=(cfg, section))
-  #      t.start()
-     #   launcher(cfg, section)
+
+    def launch_guard(self):
+        thread = threading.Thread(target=guard, args=(self,))
+        thread.start()
+
+    def launch_child_guard(self):
+        thread = threading.Thread(target=child_guard, args=(self,))
+        thread.start()
+
     def launch_auth(self, thread):
         thread = threading.Thread(target=auth, args=(self.c, self.addr, self,
                                                      thread))
         thread.start()
+    def launch_kill(self, pid):
+        thread = threading.Thread(target=kill, args=(self.launch, pid))
+        thread.start()
+
+    def launch_proc(self, proc, data):
+        thread = threading.Thread(target=proc_st, args=(self, proc))
+        thread.start()
+
     def launch_server(self):
         try:
             while True:
@@ -83,4 +119,3 @@ class Server:
             self.ss.close()
         except InterruptedError:
             task_error("Interrupted syscall")
-

@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/01 15:17:25 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/15 16:36:18 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/21 15:53:18 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,5 +34,6 @@ if __name__ == '__main__':
         filename='/tmp/.taskmasterdlog', level=logging.INFO)
     server = Server(config_file);
     server.launch_job(server.cfg, server.job)
+    server.launch_child_guard()
+    server.launch_guard()
     server.launch_server()
-

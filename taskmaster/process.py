@@ -6,24 +6,29 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/05 18:09:09 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/13 21:28:12 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/20 15:26:31 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 import os
 import sys
 import configparser
+import time
 
 from taskmaster.launcher import *
 from taskmaster.task_error import *
 from taskmaster.job import *
 
 class Process:
-    def __init__(self, job, launcher):
+    def __init__(self, job, launcher, retries):
+        self.name = ""
         self.target_fds = list()
         self.pid = "Not started"
         self.fds = list()
         self.status = "STOPPED"
+        self.retries = retries
+        self.parent = job
+        self.time = time.time()
 
     def exec(self, job, launcher):
         read_in, write_in = os.pipe()
@@ -54,3 +59,9 @@ class Process:
             os.close(read_in)
             os.close(write_out)
             os.close(write_err)
+            if job.startsecs > 0:
+                self.status = "STARTING"
+            elif job.startretries > self.retries:
+                self.status = "BACKOFF"
+            else:
+                self.status = "RUNNING"
