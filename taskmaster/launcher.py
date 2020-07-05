@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/06 09:29:22 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/21 15:03:43 by dbaffier         ###   ########.fr        #
+#    Updated: 2020/02/29 17:35:51 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ def launcher(cfg, section):
         if name in launcher.jobs:
             pass
         else:
-            job = Job(cfg, name);
+            job = Job(cfg, name)
             launcher.jobs[name] = job
             launcher.launch_loop(launcher, job, job.autostart, name)
     return launcher

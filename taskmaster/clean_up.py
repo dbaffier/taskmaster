@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/20 21:26:11 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/21 15:39:19 by dbaffier         ###   ########.fr        #
+#    Updated: 2020/02/29 15:56:16 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,13 +17,14 @@ def extract_job(lst):
             prog.append(sections)
     return (prog)
 
-def cleaner(data):
+def cleaner(data, lst_job):
 
     lst = list()
 
     for name in data.process:
+        print(name)
 
-        if "program:" + name.split('_')[0] not in list_progs \
+        if "program:" + name.split('_')[0] not in lst_job  \
             and  (data.process[name].status == "STOPPED" or \
             data.process[name].status == "EXITED" or \
             data.process[name].status == "FATAL" or \
@@ -32,17 +33,3 @@ def cleaner(data):
 
     for name in lst:
         data.process.pop(name, None)
-
-    lst = list()
-
-    for name_prog in data.jobs:
-
-        num_process = 0
-        for name_process in data.process:
-            if data.process[name_process].father == name_prog:
-                num_process += 1
-        if num_process == 0:
-            lst.append(name_prog)
-
-    for name in lst:
-        data.jobs.pop(name, None)

@@ -18,16 +18,16 @@ from taskmaster.job import *
 from taskmaster.process import *
 from taskmaster.auth import *
 from taskmaster.kill import kill
+from taskmaster.write_manager import write_manager
 
-def proc_st(self, proc):
+def proc_st(self, proc, name_process):
     data = self.launch.join()
     while proc.status != "EXITED" and proc.status != "STOPPED" \
             and proc.status != "FATAL" and proc.status != "UNKNOWN":
         time.sleep(1)
-    name = data.queue[proc.pid]
     proc.exec(proc.parent, None)
-    data.queue[proc.pid] = name
-    data.process[name] = proc
+    data.queue[proc.pid] = name_process
+    data.process[name_process] = proc
     data.lst_pid.append(proc.pid)
 
 def proc_launch(data, proc, name):
@@ -54,6 +54,7 @@ class ThreadWithReturnValue(Thread):
 class Server:
     def __init__(self, path):
         self.cfg = configparser.ConfigParser()
+        self.thread = 1
         try:
             self.cfg.read(path)
         except configparser.DuplicateSectionError:
@@ -82,6 +83,7 @@ class Server:
             task_error("Socket already used")
         self.ss.listen(5)
         self.lst_job = extract_job(self.cfg.sections())
+ #       self.lst_job = list()
 
     def launch_job(self, cfg, section):
         self.launch = ThreadWithReturnValue(target=launcher, args=(cfg, section))
@@ -103,19 +105,22 @@ class Server:
         thread = threading.Thread(target=kill, args=(self.launch, pid))
         thread.start()
 
-    def launch_proc(self, proc, data):
-        thread = threading.Thread(target=proc_st, args=(self, proc))
+    def launch_proc(self, proc, data, name):
+        thread = threading.Thread(target=proc_st, args=(self, proc, name))
+        thread.start()
+    
+    def launch_wr_manager(self):
+        thread = threading.Thread(target=write_manager, args=(self,))
         thread.start()
 
     def launch_server(self):
         try:
             while True:
-                thread = 0
                 self.c, self.addr = self.ss.accept()
                 self.c.recv(1024)
-                self.c.send(str(thread).encode('utf-7'))
-                self.launch_auth(thread)
-                thread += 1
+                self.c.send(str(self.thread).encode('utf-7'))
+                self.launch_auth(self.thread)
+                self.thread += 1
             self.ss.close()
         except InterruptedError:
             task_error("Interrupted syscall")

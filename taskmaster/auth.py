@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/06 13:35:13 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/16 09:32:22 by dbaffier         ###   ########.fr        #
+#    Updated: 2020/02/29 18:00:08 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,7 +47,7 @@ def prompt(sock):
             line = input("taskmaster> ")
             if builtin_ok(line) == True:
                 sock.send(line.encode('utf-8'))
-                if line == 'exit':
+                if line == 'exit' or line == 'quit':
                     break
                 try:
                     wait_as(sock)

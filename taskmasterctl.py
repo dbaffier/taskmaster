@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/09 13:09:30 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/16 08:35:42 by dbaffier         ###   ########.fr        #
+#    Updated: 2020/02/29 17:35:44 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,14 +24,12 @@ def exit_ctl(n, f):
     sys.exit(1)
 
 def ctl_start(host, port):
-    # sigint maybe
     signal.signal(signal.SIGINT, exit_ctl)
     sock = socket.socket()
     sock.connect((host, port))
     sock.send(("\r\n").encode('utf-8'))
     cnum = (sock.recv(1024)).decode('utf-8')
-
-    #error
+    print(cnum)
     welcome(host, port)
     i = 3
     while True:

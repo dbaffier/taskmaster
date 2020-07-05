@@ -1,0 +1,20 @@
+Launcher	taskmaster/launcher.py	/^    launcher = Launcher()$/
+Thread	taskmaster/send_mail.py	/^    t = threading.Thread(target=reporter, args=(na/
+close	taskmaster/guard.py	/^    os.close(data.process[name].fds[0])$/
+dict	taskmaster/process.py	/^        self.target_fds = dict()$/
+exit	taskmasterctl.py	/^    sys.exit(1)$/
+fork	taskmaster/daemon.py	/^            pid = os.fork()$/
+get	taskmaster/job.py	/^            self.command = cfg.get(name, "command"/
+info	taskmaster/set_status.py	/^            logging.info("autorestart %s with stat/
+input	taskmaster/test_email.py	/^password = input("Type your password and press ent/
+int	taskmaster/kill.py	/^            return int(i)$/
+join	taskmaster/server.py	/^    data = self.launch.join()$/
+list	taskmaster/clean_up.py	/^    prog = list()$/
+print	taskmaster/task_error.py	/^    print("Taskmaster: " + msg, file=sys.stderr)$/
+print_delay	taskmaster/welcome.py	/^        print_delay(c)$/
+recv	taskmaster/server_get.py	/^        rec = client.recv(2048)$/
+setgroups	taskmaster/drop_privilege.py	/^        os.setgroups([])$/
+strftime	taskmaster/test.py	/^    now = time.strftime("%c")$/
+task_error	taskmasterd.py	/^       task_error("Usage: <config_file>")$/
+time	taskmaster/watcher.py	/^    timing = time.time()$/
+write	taskmaster/auth.py	/^    sys.stdout.write(c)$/

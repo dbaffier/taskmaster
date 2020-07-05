@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/08 15:59:06 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/16 08:44:36 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/27 16:58:24 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,17 +20,22 @@ def write_to(fd, data):
         n = os.write(fd, data)
         data = data[n:]
 
-def io_transfer(job, proc):
+def remove_fd(lst, out, err):
+    lst.pop(lst.index(out))
+    lst.pop(lst.index(err))
 
-    client_attach = os.open("/tmp/client_attach", os.O_CREAT | os.O_RDONLY)
+def io_transfer(job, proc):
+    clientsocket.send("synchro".encode('utf-8'))
+    fcntl.fcntl(proc.fds[1], fcntl.F_SETFL, os.O_NONBLOCK)
+    fcntl.fcntl(proc.fds[2], fcntl.F_SETFL, os.O_NONBLOCK)
+    remove_fd(proc.target_fd, proc.fds[1], proc.fds[2])
     file_out = os.open(job.stdout, os.O_CREAT | os.O_WRONLY | os.O_APPEND)
     file_err = os.open(job.stderr, os.O_CREAT | os.O_WRONLY | os.O_APPEND)
     
     while True:
-        fds = [client_attach, proc.fds[1], proc.fds[2]]
+        fds = [fd_client, proc.fds[1], proc.fds[2]]
 
         rfds, wfds, efds = select(fds, [], [])
-        
         if proc.fds[1] in rfds:
             try:
                 data = os.read(proc.fds[1], 1024)

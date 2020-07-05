@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/01 15:17:25 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/21 15:53:18 by dbaffier         ###   ########.fr        #
+#    Updated: 2020/02/29 17:35:48 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,11 +29,12 @@ if __name__ == '__main__':
     except FileNotFoundError:
         task_error("Config file not found")
  #   daemon = Daemon('/tmp/.taskmaster_pid')
-  #  daemon.start()
+ #   daemon.start()
     logging.basicConfig(format='%(asctime)s , %(levelname)s : %(message)s', \
-        filename='/tmp/.taskmasterdlog', level=logging.INFO)
+        filename='/tmp/.taskmasterlog', level=logging.INFO)
     server = Server(config_file);
     server.launch_job(server.cfg, server.job)
+ #   server.launch_wr_manager()
     server.launch_child_guard()
     server.launch_guard()
     server.launch_server()

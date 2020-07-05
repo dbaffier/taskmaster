@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/05 16:21:07 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/20 15:13:22 by dbaffier         ###   ########.fr        #
+#    Updated: 2020/02/17 21:24:41 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -64,7 +64,7 @@ class Job:
         except configparser.NoOptionError:
             self.stderr = "/dev/null"
         try:
-            self.env = cfg.get(name, "environment")#.split(',')
+            self.env = cfg.get(name, "environment")
         except configparser.NoOptionError:
             self.env = None
         try:

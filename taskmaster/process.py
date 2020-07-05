@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/05 18:09:09 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/20 15:26:31 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/28 19:01:09 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ from taskmaster.job import *
 class Process:
     def __init__(self, job, launcher, retries):
         self.name = ""
-        self.target_fds = list()
+        self.target_fds = dict()
         self.pid = "Not started"
         self.fds = list()
         self.status = "STOPPED"
@@ -51,8 +51,8 @@ class Process:
             except:
                 sys.exit(1)
         elif self.pid > 0:
-            self.target_fds.append(read_out)
-            self.target_fds.append(read_err)
+            self.target_fds[read_out] = self.parent.stdout
+            self.target_fds[read_err] = self.parent.stderr
             self.fds.append(write_in)
             self.fds.append(read_out)
             self.fds.append(read_err)
@@ -65,3 +65,4 @@ class Process:
                 self.status = "BACKOFF"
             else:
                 self.status = "RUNNING"
+    
