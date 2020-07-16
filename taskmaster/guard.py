@@ -14,47 +14,76 @@ import threading
 import logging
 import os
 
+
+
 from taskmaster.watcher import *
-from taskmaster.server import *
-from taskmaster.set_status import set_status
+from taskmaster.process import Process
 from taskmaster.send_mail import reporter
 from taskmaster.send_mail import start_reporter
 
+import taskmaster.glob as glob
 
-def clean_io(data, name):
-    os.close(data.process[name].fds[0])
+def clean_io(task, name):
+    infd = task.process[name].fds[0]
+    outfd = task.process[name].fds[1]
+    errfd = task.process[name].fds[2]
+    os.close(infd)
+    task.old_fd.append(outfd)
+    task.old_fd.append(errfd)
 
-def child_guard(launcher):
 
-    while True:
-        launch = launcher.launch
-        try:
-            data = launch.join()
-            pid = os.waitpid(0, 0)
-            print(pid)
-            data.queue_pid += pid
-        except:
-            pass
+def proc_launch_guard(task, proc, name):
+    pp = Process(name, proc.parent, proc.retries)
+    # pp.exec(pp.parent)
+    # print("name in guard : ", name)
+    # print("PARENT", pp.parent)
+    # for name in task.jobs:
+    #     print("name in jobs: ", name)
+    pp.exec(task.jobs[pp.parent], task)
+    task.queue[pp.pid] = name
+    task.process[name] = pp
+    task.lst_pid.append(pp.pid)
+    # print("Restarting process from backoff with pid", pp.pid)
 
-def guard(launcher):
-
+def guard(task):
     while 1:
-        launch = launcher.launch
-        data = launch.join()
-        while len(data.queue_pid) > 1:
-            print(data.queue_pid)
+        while len(glob.queue_pid) > 1:
+            pid = glob.queue_pid[0]
+            # print("PID IN GUARD : ", pid)
             try:
-                pid = data.queue_pid[0]
-                name = data.queue[pid]
-                exitcode = data.queue_pid[1]
-                if str(exitcode) not in data.process[name].parent.exitcodes:
-                    reporter(name, None)
-                watcher(data, name)
-                watcher_backoff(data, name)
-                set_status(data, name, exitcode)
+                name = task.queue[pid]
+                exitcode = glob.queue_pid[1]
+                parent = task.process[name].parent
+                watcher(task, name)
+                watcher_backoff(task, name)
+                clean_io(task, name)
+                # if str(exitcode) not in parent.exitcodes:
+                #     reporter(name, None)
+                # if ((str(exitcode) not in parent.exitcodes and  \
+                #     parent.autorestart == "unexpected")         \
+                #     or (parent.autorestart == "true"))          \
+                #     and task.process[name].status == "RUNNING":
+                #         logging.info("autorestart %s with status %s", name, parent.autorestart)
+                #         proc_launch_guard(task, task.process[name], name)
+                if task.process[name].status == "RUNNING":
+                    task.process[name].status = "EXITED"
+                elif task.process[name].status == "STOPPING":
+                    task.process[name].status = "STOPPED"
+                elif task.process[name].status == "BACKOFF":
+                    if task.process[name].retries > 0:
+                        task.process[name].retries -= 1
+                        logging.info("start %s from backoff", name)
+                        proc_launch_guard(task, task.process[name], name)
+                    elif task.process[name].retries == 0:
+                        # report
+                        logging.info("FATAL in %s", name)
+                        task.process[name].status = "FATAL"
+            except OSError:
+                t = threading.Thread(targer=guard, args=(pid, None))
+                t.start()
             except KeyError:
-                logging.info("Error in guard\n")
-            data.queue_pid.pop(0)
-            data.queue_pid.pop(0)
+                pass
+            glob.queue_pid.pop(0)
+            glob.queue_pid.pop(0)
         time.sleep(1)
 

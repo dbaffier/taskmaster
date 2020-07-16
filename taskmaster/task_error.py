@@ -14,4 +14,4 @@ import sys
 
 def task_error(msg):
     print("Taskmaster: " + msg, file=sys.stderr)
-    sys.exit(1);
+    sys.exit(1)

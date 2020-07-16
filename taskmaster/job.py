@@ -1,4 +1,4 @@
-# **************************************************************************** #
+    # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
 #    process.py                                         :+:      :+:    :+:    #
@@ -91,3 +91,14 @@ class Job:
                 os.environ[j[0]] = j[1]
         if self.command:
             self.command = self.command.split(' ')
+
+    def __eq__(self, other):
+        return isinstance(other, Job) and self.command == other.command    \
+        and self.stdout == other.stdout and self.stderr == other.stderr and self.env == other.env \
+        and self.directory == other.directory and self.umask == other.umask
+
+    def __ne__(self, other):
+        return isinstance(other, Job) and self.autorestart != other.autorestart or self.exitcodes != other.exitcodes           \
+                or self.startsecs != other.startsecs or self.startretries != other.startretries     \
+                or self.stopsignal != other.stopsignal or self.stopwaitsecs != other.stopwaitsecs   \
+                or self.numprocs != other.numprocs

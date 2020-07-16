@@ -27,18 +27,17 @@ def get_signal(stopsignal):
         if stopsignal == i:
             a = 1
 
-def kill(launch, pid):
+def kill(task, pid):
     if pid == "Not started":
         return 1
-    data = launch.join()
-    name = data.queue[pid]
-    proc = data.process[name]
+    name = task.queue[pid]
+    proc = task.process[name]
     if proc.status != "STARTING" and proc.status != "RUNNING" \
         and proc.status != "BACKOFF":
         return 1
     if proc.status == "STOPPING":
         proc.status = "STOPPED"
-    parent = proc.parent
+    parent = task.jobs[proc.parent]
     sig = get_signal(parent.stopsignal)
     proc.status = "STOPPING"
     try:

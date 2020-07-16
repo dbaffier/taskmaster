@@ -17,19 +17,29 @@ def extract_job(lst):
             prog.append(sections)
     return (prog)
 
-def cleaner(data, lst_job):
+def cleaner(task, lst_job):
 
     lst = list()
 
-    for name in data.process:
-        print(name)
-
+    for name in task.process:
         if "program:" + name.split('_')[0] not in lst_job  \
-            and  (data.process[name].status == "STOPPED" or \
-            data.process[name].status == "EXITED" or \
-            data.process[name].status == "FATAL" or \
-            data.process[name].status == "UNKNOWN"):
+            and  (task.process[name].status == "STOPPED" or \
+            task.process[name].status == "EXITED" or \
+            task.process[name].status == "FATAL" or \
+            task.process[name].status == "UNKNOWN"):
                 lst.append(name)
 
     for name in lst:
-        data.process.pop(name, None)
+        task.process.pop(name, None)    
+    
+    rmv = list()
+
+    for name in task.jobs:
+        n = 0
+        for namep in task.process:
+            if task.process[namep].parent == name:
+                n += 1
+        if n == 0:
+            rmv.append(name)
+    for name in rmv:
+        task.jobs.pop(name, None)

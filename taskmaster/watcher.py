@@ -15,15 +15,15 @@ import time
 def watcher(data, proc):
     timing = time.time()
     secs = timing - data.process[proc].time
-    if secs >= data.process[proc].parent.startsecs \
-            and data.process[proc].status == "STARTING" \
-            or data.process[proc].status == "BACKOFF":
+    if secs >= data.jobs[data.process[proc].parent].startsecs \
+            and (data.process[proc].status == "STARTING" \
+            or data.process[proc].status == "BACKOFF"):
             data.process[proc].status = "RUNNING"
 
 def watcher_backoff(data, proc):
     timing = time.time()
     secs = timing - data.process[proc].time
-    if secs < data.process[proc].parent.startsecs \
-            and data.process[proc].status == "STARTING" \
-            or data.process[proc].status == "BACKOFF":
-            data.process[proc].status = "BACKOFF"
+    if secs < data.jobs[data.process[proc].parent].startsecs           \
+            and (data.process[proc].status == "STARTING"    \
+            or data.process[proc].status == "BACKOFF"):
+                data.process[proc].status = "BACKOFF"

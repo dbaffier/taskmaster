@@ -16,8 +16,7 @@ import getpass
 import time
 import os
 
-from taskmaster.server_get import *
-from taskmaster.builtin import builtin_ok
+from taskmaster.builtin import *
 
 def print_delay(c):
     sys.stdout.write(c)
@@ -60,7 +59,7 @@ def prompt(sock):
             sys.stdout.write("\n")
             pass
 
-def auth(client, addr, server, thread):
+def auth(client, addr, server):
     retries = 0
     while retries < 3:
         passwd = (client.recv(1024)).decode('utf-8')
@@ -74,7 +73,8 @@ def auth(client, addr, server, thread):
             break
         elif retries < 3:
             client.send(("Wrong password").encode('utf-8'))
-    thread -= 1
+    if server.thread > 1:
+        server.thread -= 1
     client.close()
 
 

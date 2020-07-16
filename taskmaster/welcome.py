@@ -20,7 +20,7 @@ def print_arr(arr):
     for c in arr:
         print_delay_fast(c);
 
-def welcome(host, port):
+def welcome(host, port, n):
     connect = "Connexion is starting  "
     for c in connect:
         print_delay(c)
@@ -44,7 +44,7 @@ def welcome(host, port):
           \033[0;31mport: \033[0;0m"  \
           + str(port) + "\033[0;31m           ########\n"
     print_arr(arr)
-    arr = "#################                                              #################\n"
+    arr = "#################    client number:\033[0;0m" + str(n) + "\033[0;31m                             #################\n"
     print_arr(arr)
     arr = "################################################################################\n"
     print_arr(arr)
