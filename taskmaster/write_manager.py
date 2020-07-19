@@ -3,7 +3,7 @@ import time
 import logging
 from select import select
 
-from taskmaster.task_error import task_error
+from taskmaster.helper import task_error
 
 def write_manager(task):
 

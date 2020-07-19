@@ -8,15 +8,11 @@ import threading
 import time
 
 import taskmaster.glob as glob
-
-
 from threading import Thread
 from taskmaster.guard import *
-from taskmaster.task_error import *
-from taskmaster.parse_prog import *
+from taskmaster.helper import task_error, extract_job, parse_prog, proc_max
 from taskmaster.drop_privilege import *
 from taskmaster.launcher import launcher
-from taskmaster.clean_up import extract_job
 from taskmaster.job import *
 from taskmaster.process import *
 from taskmaster.auth import *

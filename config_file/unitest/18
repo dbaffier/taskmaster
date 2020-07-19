@@ -1,0 +1,13 @@
+[program:file1]
+command=/usr/bin/touch new_file_task1
+directory=/tmp
+umask=000
+
+[program:file2]
+command=/usr/bin/touch new_file_task2
+directory=/tmp
+umask=644
+
+[server]
+port=4242
+password=4242

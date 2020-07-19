@@ -16,15 +16,13 @@ import copy
 
 from taskmaster.job import *
 from taskmaster.process import *
-from taskmaster.io_read import *
-
 
 def launcher(server, task, cfg, section, old_prg):
     if old_prg:
         for name in old_prg:
             if name not in section:
                 for proc in task.process:
-                    if task.process[proc].parent == name:
+                    if task.process[proc].parent == name:   
                         server.launch_kill(task.process[proc].pid)    
     for name in section:
         if name in task.jobs:
@@ -46,7 +44,6 @@ def launch_loop(task, job, ok, name):
             else:
                 process_cmd = name[8:]
             logging.info("start %s", process_cmd)
-            # print("Launching job : ", process_cmd)
             proc = Process(process_cmd, name, copy.copy(job.startretries))
             proc.exec(job, task)
             proc.name = process_cmd
@@ -66,38 +63,30 @@ def launch_loop(task, job, ok, name):
 
 def launch_again(server, task, job, prevjob, name):
     numprocs = prevjob.numprocs
-    # print("Launch again")
-    # print("condition", job == prevjob)
     if job == prevjob:
-        # print("Enter in if cmd etc are the same")
         if numprocs < job.numprocs:
-            # print("Enter if new proc is superior\n")
             diff = numprocs
             while diff != job.numprocs:
                 process_cmd = name[8:] + "_" + str(diff)
                 logging.info("start %s", process_cmd)
                 proc = Process(process_cmd, name, copy.copy(job.startretries))
-                proc.exec(job)
-                proc.name = process_cmd
-                task.queue[proc.pid] = process_cmd
+                if job.autostart == "true":
+                    proc.exec(job, task)
+                    proc.name = process_cmd
+                    task.queue[proc.pid] = process_cmd
+                    task.lst_pid.append(proc.pid)
                 task.process[process_cmd] = proc
-                task.lst_pid.append(proc.pid)
                 diff += 1
         if job != prevjob:
-            # print("Enter if numprocs is differents")
             task.jobs.pop(name, None)
             task.jobs[name] = job
     else:
-        # print("Enter if cmd are different")
         task.jobs.pop(name, None)
         task.jobs[name] = job
         for namep in task.process:
-            # print("IN KILL : ", task.process[namep].parent, name)
             if task.process[namep].parent == name:
-                # print("KILL : ", task.process[namep].pid)
                 server.launch_kill(task.process[namep].pid)
         if job.autostart == "true":
-            # print("Auto start on ")
             while numprocs > 0:
                 if job.numprocs > 1:
                     process_cmd = name[8:] + "_" + str(numprocs)

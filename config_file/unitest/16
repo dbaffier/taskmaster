@@ -1,0 +1,8 @@
+[program:ls]
+command=/usr/bin/env
+stdout_logfile=/tmp/envout
+environment=hello="HELLO",world="world"
+
+[server]
+port=4242
+password=4242

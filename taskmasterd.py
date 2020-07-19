@@ -14,7 +14,7 @@ import sys
 import os
 import logging
 
-from taskmaster.task_error import *
+from taskmaster.helper import task_error
 from taskmaster.server import *
 from taskmaster.job import *
 from taskmaster.daemon import Daemon
@@ -29,14 +29,13 @@ if __name__ == '__main__':
         config_file = os.path.abspath(sys.argv[1])
     except FileNotFoundError:
         task_error("Config file not found")
-    # daemon = Daemon('/tmp/.taskmaster_pid')
-    # daemon.start()
+    daemon = Daemon('/tmp/.taskmaster_pid')
+    daemon.start()
     logging.basicConfig(format='%(asctime)s , %(levelname)s : %(message)s', \
         filename='/tmp/.taskmasterlog', level=logging.INFO)
     glob.init()
     server = Server(config_file)
     server.launch_guard()
     server.launch_wr_manager()
-   # server.launch_child_guard()
     server.launch_job(server.cfg, server.job, None)
     server.launch_server()

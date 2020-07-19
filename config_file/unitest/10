@@ -1,0 +1,7 @@
+[program:ls]
+command=/Users/dbaffier/Documents/taskmaster-end/config_file/segfault
+startretries=-1
+
+[server]
+port=4242
+password=4242

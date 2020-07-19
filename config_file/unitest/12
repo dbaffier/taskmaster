@@ -1,0 +1,8 @@
+[program:ls]
+command=/bin/bash
+stopsignal=ABCDEF
+stdout_logfile=/tmp/11
+
+[server]
+port=4242
+password=4242

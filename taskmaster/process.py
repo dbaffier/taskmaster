@@ -16,7 +16,7 @@ import configparser
 import time
 import signal
 
-from taskmaster.task_error import *
+from taskmaster.helper import task_error
 from taskmaster.job import *
 
 class Process:

@@ -15,6 +15,7 @@ import smtplib
 import threading
 import ssl
 
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 def start_reporter(name_prog):
@@ -30,25 +31,26 @@ def reporter(name, null):
     me = "taskmaster_rep@hotmail.com"
 
     now = time.strftime("%c")
-    msg = MIMEText(str(now) + ', program "' + name + '" crashed !')
+    msg = MIMEMultipart()
+    # msg = MIMEText(str(now) + ', program "' + name + '" crashed !')
 
     msg['Subject'] = '[CRASH] Program [' + name  + '] crashed !'
     msg['From'] = me
     msg['To'] = you
     password = "answer42"
 
-    context=ssl.create_default_context()
     try:
-        with smtplib.SMTP("smtp.live.com", 587) as s:
-            s.ehlo()
-            s.starttls(context=context)
-            s.ehlo()
-            s.login(me, password)
-            try:
-               s.sendmail(me, you, msg.as_string())
-            except:
-                print("Send mail fail")
-                pass
-            s.quit()
-    except:
+        server = smtplib.SMTP('smtp-mail.outlook.com', 587)
+    except Exception as e:
+        server = smtplib.SMTP_SSL('smtp-mail.outlook.com', 465)
+
+    try:
+        server.connect("smtp-mail.outlook.com", 587)
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
+        server.login(me, password)
+        server.sendmail(me, you, msg.as_string())
+        server.quit()
+    except Exception as e:
         pass

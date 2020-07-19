@@ -26,10 +26,6 @@ from taskmaster.welcome import *
 def exit_ctl(n, f):
     sys.exit(1)
 
-def set_winsize(fd, row, col, xpix=0, ypix=0):
-    winsize = struct.pack("HHHH", row, col, xpix, ypix)
-    fcntl.ioctl(fd, termios.TIOCSWINSZ, winsize)
-
 def ctl_start(host, port):
     signal.signal(signal.SIGINT, exit_ctl)
     sock = socket.socket()
@@ -47,7 +43,6 @@ if __name__ == '__main__':
     except:
         sys.stderr.write("taskmasterctl: no such file")
         sys.exit(1)
-    set_winsize(1, 20, 20)
     config = configparser.ConfigParser()
     config.read(config_file)
     try:

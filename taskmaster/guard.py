@@ -13,10 +13,9 @@
 import threading
 import logging
 import os
+import time
 
-
-
-from taskmaster.watcher import *
+from taskmaster.helper import watcher, watcher_backoff
 from taskmaster.process import Process
 from taskmaster.send_mail import reporter
 from taskmaster.send_mail import start_reporter
@@ -34,16 +33,17 @@ def clean_io(task, name):
 
 def proc_launch_guard(task, proc, name):
     pp = Process(name, proc.parent, proc.retries)
-    # pp.exec(pp.parent)
-    # print("name in guard : ", name)
-    # print("PARENT", pp.parent)
-    # for name in task.jobs:
-    #     print("name in jobs: ", name)
     pp.exec(task.jobs[pp.parent], task)
     task.queue[pp.pid] = name
     task.process[name] = pp
     task.lst_pid.append(pp.pid)
-    # print("Restarting process from backoff with pid", pp.pid)
+
+def guardian(task, pid, null):
+    for p in task.process:
+        if pid == task.process[p].pid:
+            task.process[p].status = "UNKNOWN"
+            name = task.queue[pid]
+            logging.info("Process %s set to UNKNOWN", name)
 
 def guard(task):
     while 1:
@@ -57,15 +57,15 @@ def guard(task):
                 watcher(task, name)
                 watcher_backoff(task, name)
                 clean_io(task, name)
-                # if str(exitcode) not in parent.exitcodes:
-                #     reporter(name, None)
-                # if ((str(exitcode) not in parent.exitcodes and  \
-                #     parent.autorestart == "unexpected")         \
-                #     or (parent.autorestart == "true"))          \
-                #     and task.process[name].status == "RUNNING":
-                #         logging.info("autorestart %s with status %s", name, parent.autorestart)
-                #         proc_launch_guard(task, task.process[name], name)
-                if task.process[name].status == "RUNNING":
+                if str(exitcode) not in task.jobs[parent].exitcodes:
+                    reporter(name, None)
+                if ((str(exitcode) not in task.jobs[parent].exitcodes and  \
+                    task.jobs[parent].autorestart == "unexpected")         \
+                    or (task.jobs[parent].autorestart == "true"))          \
+                    and task.process[name].status == "RUNNING":
+                        logging.info("autorestart %s with status %s", name, task.jobs[parent].autorestart)
+                        proc_launch_guard(task, task.process[name], name)
+                elif task.process[name].status == "RUNNING":
                     task.process[name].status = "EXITED"
                 elif task.process[name].status == "STOPPING":
                     task.process[name].status = "STOPPED"
@@ -75,11 +75,10 @@ def guard(task):
                         logging.info("start %s from backoff", name)
                         proc_launch_guard(task, task.process[name], name)
                     elif task.process[name].retries == 0:
-                        # report
                         logging.info("FATAL in %s", name)
                         task.process[name].status = "FATAL"
-            except OSError:
-                t = threading.Thread(targer=guard, args=(pid, None))
+            except OSError: 
+                t = threading.Thread(target=guardian, args=(task, pid, None))
                 t.start()
             except KeyError:
                 pass

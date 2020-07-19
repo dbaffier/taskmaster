@@ -14,7 +14,7 @@ import os
 import sys
 import configparser
 
-from taskmaster.task_error import *
+from taskmaster.helper import task_error
 
 class Job:
     def __init__(self, cfg, name):
@@ -29,7 +29,7 @@ class Job:
         try:
             self.autostart = cfg.get(name, "autostart")
         except configparser.NoOptionError:
-            self.autostart = True
+            self.autostart = "true"
         try:
             self.autorestart = cfg.get(name, "autorestart")
         except configparser.NoOptionError:

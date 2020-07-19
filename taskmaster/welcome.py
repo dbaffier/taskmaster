@@ -12,13 +12,12 @@
 
 import sys
 import time
-
 from taskmaster.auth import *
 
 
 def print_arr(arr):
     for c in arr:
-        print_delay_fast(c);
+        print_delay_fast(c)
 
 def welcome(host, port, n):
     connect = "Connexion is starting  "
@@ -44,12 +43,10 @@ def welcome(host, port, n):
           \033[0;31mport: \033[0;0m"  \
           + str(port) + "\033[0;31m           ########\n"
     print_arr(arr)
-    arr = "#################    client number:\033[0;0m" + str(n) + "\033[0;31m                             #################\n"
+    arr = "#################    client number:\033[0;0m" + str(n) + "\033[0;31m                            #################\n"
     print_arr(arr)
     arr = "################################################################################\n"
     print_arr(arr)
-    f = open('ascii-art.txt', "r")
-    print(f.read())
     print("\033[0;0m")
 
 

@@ -1,0 +1,19 @@
+[program:abcde]
+command=/Users/dbaffier/Documents/taskmaster-end/config_file/bin/special
+numprocs=200
+autostart=false
+autorestart=false
+exitcodes=0
+startsecs=0
+startretries=0
+stopsignal=TERM
+stopwaitsecs=5
+stdout_logfile=/tmp/lot
+stderr_logfile=/tmp/lot
+environnement=HELLO="bonjour", WORLD="salut"
+directory=/tmp
+umask=000
+
+[server]
+port=4242
+password=4242

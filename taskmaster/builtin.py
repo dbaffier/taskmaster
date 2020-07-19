@@ -18,12 +18,8 @@ import logging
 import configparser
 import pprint
 
-from taskmaster.clean_up import *
-from taskmaster.parse_prog import proc_max
 from taskmaster.launcher import launcher
-from taskmaster.parse_prog import *
-from taskmaster.padding import get_status
-from taskmaster.watcher import *
+from taskmaster.helper import *
 
 def     builtin_ok(line):
     builtins = {'status', 'exit', 'stop', 'start', 'quit', 'restart', 'log',
@@ -40,19 +36,13 @@ def status(command, client, server):
     status = get_status(data, data.process)
     for s in status:
         client.send(s.encode('utf-8'))
-    # for name in data.process:
-    #     print(name)
-    #     prog_name = name[:name.index("_")]
-    #     s = prog_name + ":" + name
-    #     sp = s.ljust(30, ' ') + data.process[name].status + '\n'
-    #     client.send(sp.encode('utf-8'))
 
 def stop(command, client, server):
     data = server.task
     for cmd in command[1:]:
         try:
             if data.process[cmd].status != "STARTING" and data.process[cmd].status != "RUNNING":
-               client.send(("process " + cmd + "isn't running \n").encode('utf-8'))
+               client.send(("process " + cmd + " isn't running \n").encode('utf-8'))
             else:
                 logging.info("stop :%s", cmd)
                 server.launch_kill(data.process[cmd].pid)
@@ -63,8 +53,8 @@ def stop(command, client, server):
 def start(command, client, server):
     data = server.task
     for cmd in command[1:]:
-        proc = data.process[cmd]
         try:
+            proc = data.process[cmd]
             if proc.status != "RUNNING" and proc.status != "STARTING"       \
             and proc.status != "BACKOFF":
                 name = "program:" + cmd.split('_')[0]
@@ -79,11 +69,11 @@ def start(command, client, server):
 def restart(command, client, server):
     data = server.task
     for cmd in command[1:]:
-        proc = data.process[cmd]
         try:
+            proc = data.process[cmd]
             if proc.status != "STARTING" and proc.status != "RUNNING"       \
                 and proc.status != "BACKOFF":
-                client.send(("process " + cmd + "isn't running \n").encode('utf-8'))
+                client.send(("process " + cmd + " isn't running \n").encode('utf-8'))
             else:
                 server.launch_kill(data.process[cmd].pid)
                 client.send(("stopping process " + cmd + "\n").encode('utf-8'))
@@ -127,7 +117,12 @@ def shutdown(command, client, server):
     data = server.task
     for proc in data.process:
         server.launch_kill(data.process[proc].pid)
+    try:
+        os.remove('/tmp/.taskmasterd')
+    except:
+        pass
     client.send(("taskmaster is shutdown").encode('utf-8'))
+    client.send(('\r').encode('utf-8'))
     logging.info("Taskmaster ended")
     os.kill(server.pid, signal.SIGKILL)
         

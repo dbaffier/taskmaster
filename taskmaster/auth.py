@@ -43,7 +43,7 @@ def wait_as(sock):
 def prompt(sock):
     while True: 
         try:
-            line = input("taskmaster> ")
+            line = input("\033[1;36mtaskmaster>\033[0m ")
             if builtin_ok(line) == True:
                 sock.send(line.encode('utf-8'))
                 if line == 'exit' or line == 'quit':
