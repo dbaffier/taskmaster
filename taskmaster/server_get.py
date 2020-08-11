@@ -17,16 +17,16 @@ import os
 def status(client, server):
     data = server.launch.join()
     for name in data.process:
-        prog_name = name[:name.index("_")]
+        prog_name = name.split('_')[0]
         s = prog_name + ":" + name
-        sp = s.ljust(30, ' ') + '\n'
+        sp = s.ljust(30, ' ') + "\n"
         client.send(sp.encode('utf-8'))
 
 
 def server_get(client, addr, server):
     func = {'status': status }
     while True:
-        rec = client.recv(1024)
+        rec = client.recv(2048)
         dec = rec.decode('utf-8')
         cmd = dec.split(' ')
         if cmd[0] == 'exit' or cmd[0] == 'quit' or not rec:

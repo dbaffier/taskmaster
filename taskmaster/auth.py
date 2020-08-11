@@ -33,7 +33,7 @@ def print_delay_fast(c):
 def wait_as(sock):
     while True:
         try:
-            reply = sock.recv(1024).decode('utf-8')
+            reply = sock.recv(2048).decode('utf-8')
         except ConnectionResetError:
             raise ConnectionResetError
         if len(reply) > 0 and reply != '\r':
