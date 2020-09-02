@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/06 13:35:13 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/15 17:22:42 by dbaffier         ###   ########.fr        #
+#    Updated: 2020/02/29 18:00:08 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,8 +16,7 @@ import getpass
 import time
 import os
 
-from taskmaster.server_get import *
-from taskmaster.builtin import builtin_ok
+from taskmaster.builtin import *
 
 def print_delay(c):
     sys.stdout.write(c)
@@ -44,10 +43,10 @@ def wait_as(sock):
 def prompt(sock):
     while True: 
         try:
-            line = input("taskmaster> ")
+            line = input("\033[1;36mtaskmaster>\033[0m ")
             if builtin_ok(line) == True:
                 sock.send(line.encode('utf-8'))
-                if line == 'exit':
+                if line == 'exit' or line == 'quit':
                     break
                 try:
                     wait_as(sock)
@@ -60,7 +59,7 @@ def prompt(sock):
             sys.stdout.write("\n")
             pass
 
-def auth(client, addr, server, thread):
+def auth(client, addr, server):
     retries = 0
     while retries < 3:
         passwd = (client.recv(1024)).decode('utf-8')
@@ -74,7 +73,8 @@ def auth(client, addr, server, thread):
             break
         elif retries < 3:
             client.send(("Wrong password").encode('utf-8'))
-    thread -= 1
+    if server.thread > 1:
+        server.thread -= 1
     client.close()
 
 

@@ -1,0 +1,7 @@
+[program:ls]
+command=/usr/bin/touch new_file_task
+directory=/tmp
+
+[server]
+port=4242
+password=4242

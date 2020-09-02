@@ -6,26 +6,31 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/05 18:09:09 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/13 21:28:12 by dbaffier         ###   ########.fr        #
+#    Updated: 2019/05/28 19:01:09 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 import os
 import sys
 import configparser
+import time
+import signal
 
-from taskmaster.launcher import *
-from taskmaster.task_error import *
+from taskmaster.helper import task_error
 from taskmaster.job import *
 
 class Process:
-    def __init__(self, job, launcher):
-        self.target_fds = list()
+    def __init__(self, name, job, retries):
+        self.name = name
+        self.target_fds = dict()
         self.pid = "Not started"
-        self.fds = list()
+        self.fds = []
         self.status = "STOPPED"
+        self.retries = retries
+        self.parent = job
+        self.time = 0
 
-    def exec(self, job, launcher):
+    def exec(self, job, task):
         read_in, write_in = os.pipe()
         read_out, write_out = os.pipe()
         read_err, write_err = os.pipe()
@@ -34,7 +39,8 @@ class Process:
         except BlockingIOError:
             task_error("Fork failed")
         if self.pid == 0:
-            os.dup2(read_in, 0)
+            signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+            os.dup2(read_in, sys.stdin.fileno())
             os.dup2(write_out, sys.stdout.fileno())
             os.dup2(write_err, sys.stderr.fileno())
             os.close(write_in)
@@ -46,11 +52,25 @@ class Process:
             except:
                 sys.exit(1)
         elif self.pid > 0:
-            self.target_fds.append(read_out)
-            self.target_fds.append(read_err)
             self.fds.append(write_in)
             self.fds.append(read_out)
             self.fds.append(read_err)
+
+            task.fds.append(read_out)
+            task.fds.append(read_err)
+
+            task.prg_fds[read_out] = job.stdout
+            task.prg_fds[read_err] = job.stderr
+
             os.close(read_in)
             os.close(write_out)
             os.close(write_err)
+            
+            if job.startsecs > 0:
+                self.status = "STARTING"
+            elif job.startretries > self.retries:
+                self.status = "BACKOFF"
+            else:
+                self.status = "RUNNING"
+            self.time = time.time()
+    

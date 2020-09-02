@@ -1,0 +1,7 @@
+[program:ls]
+command=/bin/ls -l
+autostart=blabla
+
+[server]
+port=4242
+password=4242

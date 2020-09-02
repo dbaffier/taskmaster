@@ -1,0 +1,8 @@
+[program:ls]
+command=/Users/dbaffier/Documents/taskmaster-end/config_file/bin/cannot_quit
+stopsignal=INT
+stdout_logfile=/tmp/11
+
+[server]
+port=4242
+password=4242

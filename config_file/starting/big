@@ -1,0 +1,19 @@
+[program:bigls]
+command=/bin/ls -lR /
+numprocs=1
+autostart=false
+autorestart=false
+exitcodes=0
+startsecs=0
+startretries=1
+stopsignal=TERM
+stopwaitsecs=5
+stdout_logfile=/tmp/big_out
+stderr_logfile=/tmp/big_err
+environment=hello="hello",world="world"
+directory=/tmp
+umask=000
+
+[server]
+port=4242
+password=4242

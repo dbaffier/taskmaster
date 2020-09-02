@@ -1,0 +1,5 @@
+[program:ls]
+
+[server]
+port=4242
+password=4242

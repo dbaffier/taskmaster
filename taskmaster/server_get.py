@@ -14,6 +14,7 @@ import socket
 import sys
 import os
 
+
 def status(client, server):
     data = server.launch.join()
     for name in data.process:
@@ -24,7 +25,7 @@ def status(client, server):
 
 
 def server_get(client, addr, server):
-    func = {'status': status }
+    func = {'status': status}
     while True:
         rec = client.recv(2048)
         dec = rec.decode('utf-8')
@@ -35,4 +36,3 @@ def server_get(client, addr, server):
             if cmd[0] == f:
                 func[f](client, server)
         client.send(("\r").encode('utf-8'))
-

@@ -1,0 +1,18 @@
+[program:commandreload]
+command=/bin/ls -la
+numprocs=1
+autostart=false
+autorestart=false
+exitcodes=0
+startsecs=0
+startretries=0
+stopsignal=TERM
+stopwaitsecs=0
+stdout_logfile=/tmp/reload_out
+stderr_logfile=/tmp/reload_err
+directory=/tmp
+umask=000
+
+[server]
+port=4242
+password=4242

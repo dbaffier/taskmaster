@@ -6,7 +6,7 @@
 #    By: dbaffier <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/05/05 16:21:07 by dbaffier          #+#    #+#              #
-#    Updated: 2019/05/15 17:22:57 by dbaffier         ###   ########.fr        #
+#    Updated: 2020/02/17 21:24:41 by dbaffier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,8 @@ import os
 import sys
 import configparser
 
-from taskmaster.task_error import *
+from taskmaster.helper import task_error
+
 
 class Job:
     def __init__(self, cfg, name):
@@ -29,7 +30,7 @@ class Job:
         try:
             self.autostart = cfg.get(name, "autostart")
         except configparser.NoOptionError:
-            self.autostart = True
+            self.autostart = "true"
         try:
             self.autorestart = cfg.get(name, "autorestart")
         except configparser.NoOptionError:
@@ -64,7 +65,7 @@ class Job:
         except configparser.NoOptionError:
             self.stderr = "/dev/null"
         try:
-            self.env = cfg.get(name, "environment")#.split(',')
+            self.env = cfg.get(name, "environment")
         except configparser.NoOptionError:
             self.env = None
         try:
@@ -91,3 +92,14 @@ class Job:
                 os.environ[j[0]] = j[1]
         if self.command:
             self.command = self.command.split(' ')
+
+    def __eq__(self, other):
+        return isinstance(other, Job) and self.command == other.command    \
+            and self.stdout == other.stdout and self.stderr == other.stderr and self.env == other.env \
+            and self.directory == other.directory and self.umask == other.umask
+
+    def __ne__(self, other):
+        return isinstance(other, Job) and self.autorestart != other.autorestart or self.exitcodes != other.exitcodes           \
+            or self.startsecs != other.startsecs or self.startretries != other.startretries     \
+            or self.stopsignal != other.stopsignal or self.stopwaitsecs != other.stopwaitsecs   \
+            or self.numprocs != other.numprocs
