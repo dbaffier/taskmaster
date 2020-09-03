@@ -1,7 +1,7 @@
 Taskmaster
 ==========
 
-Supervisor is a client/server system that allows its users to
+Taskmaster project is a client/server system that allows its users to
 control a number of processes on UNIX-like operating systems.
 
 What i implemented :
